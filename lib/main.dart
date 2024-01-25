@@ -98,9 +98,73 @@ class _HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<_HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  final TextInputAction _search = TextInputAction.search;
+  final FocusNode _searchFocus = FocusNode();
+  int selected = 0;
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return SingleChildScrollView(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 2.h,
+        ),
+        SizedBox(
+              width: 90.w,
+              child: TextFormField(
+                controller: _searchController,
+                focusNode: _searchFocus,
+                textInputAction: _search,
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey.shade100),
+                      borderRadius: BorderRadius.circular(20)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey.shade100),
+                      borderRadius: BorderRadius.circular(20)),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Colors.grey.shade400,
+                  ),
+                  hintText: "Find things to do",
+                  fillColor: Colors.grey.shade100,
+                  filled: true,
+                ),
+              )),
+        SizedBox(height: 4.h,),
+        SizedBox(width: 90.w,child:SingleChildScrollView(scrollDirection: Axis.horizontal,child:Row(children: [
+          _customRadio("Location", 0),
+          _customRadio("Hotels", 1),
+          _customRadio("Food", 2),
+          _customRadio("Adventure", 3),
+          _customRadio("Sea", 4),
+
+        ],)))
+        ]),
+    );
+  }
+
+  Widget _customRadio(String text, int index) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          selected = index;
+        });
+
+      },
+      style: ElevatedButton.styleFrom(elevation: 0,
+          onPrimary: selected == index
+                  ? Colors.blue.shade400
+                  : Colors.grey.shade300,
+          primary:
+              selected == index ? Colors.grey.shade200 : Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      child: Text(text),
+    );
   }
 }
 
