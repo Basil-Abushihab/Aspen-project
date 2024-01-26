@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:aspenproject/models/locations.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 void main() {
   runApp(const HomePage());
@@ -104,6 +105,7 @@ class _HomeScreenState extends State<_HomeScreen> {
   final FocusNode _searchFocus = FocusNode();
   int selected = 0;
   List _locations = [];
+  List _rLocations = [];
 
   @override
   void initState() {
@@ -183,18 +185,49 @@ class _HomeScreenState extends State<_HomeScreen> {
               _getListViewBuilder(),
             ],
           ),
+        ),
+        Container(
+          height: 33.h,
+          width: 90.w,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Recomended",
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+              ),
+              _getListViewBuilderRecommended(),
+            ],
+          ),
         )
       ]),
     );
   }
 
   Widget _getListViewBuilder() {
-    return Container(height: 32.h,child:ListView.builder(scrollDirection: Axis.horizontal,
-        itemCount: _locations.length,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return _popularLocationCard(_locations[index]);
-        }));
+    return Container(
+        height: 32.h,
+        child: ListView.builder(
+            physics: BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            itemCount: _locations.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return _popularLocationCard(_locations[index]);
+            }));
+  }
+
+  Widget _getListViewBuilderRecommended() {
+    return Container(
+        height: 25.h,
+        child: ListView.builder(
+            physics: BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            itemCount: _rLocations.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return _recomendedLocationCard(_rLocations[index]);
+            }));
   }
 
   Widget _customRadio(String text, int index) {
@@ -226,22 +259,25 @@ class _HomeScreenState extends State<_HomeScreen> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 image: DecorationImage(
-                    fit: BoxFit.fill, image: NetworkImage(scale: 12,loc.src))),
+                    fit: BoxFit.fill, image: NetworkImage(scale: 12, loc.src))),
           ),
           Positioned(
-              top: 170,
-              left: 20,
-              child: Container(
+            top: 170,
+            left: 20,
+            child: Container(
                 height: 4.h,
                 width: 25.w,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
                     color: Colors.grey.shade600),
                 child: Center(
-                    child: Text(
-                        style: const TextStyle(color: Colors.white),
-                        loc.title)),
-              )),
+                    child: AutoSizeText(
+                  style: TextStyle(color: Colors.white),
+                  loc.title,
+                  maxFontSize: 20.sp,
+                  minFontSize: 10,
+                ))),
+          ),
           Positioned(
               top: 204,
               left: 20,
@@ -291,8 +327,81 @@ class _HomeScreenState extends State<_HomeScreen> {
         ]));
   }
 
+  Widget _recomendedLocationCard(LocationsModel loc) {
+    return Card(
+      color: Colors.grey.shade50,
+      elevation: 0,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            height: 20.h,
+            width: 70.w,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30.0),
+                image: DecorationImage(
+                    fit: BoxFit.fill, image: NetworkImage(loc.src))),
+          ),
+          Positioned(
+              top: 140,
+              left: 160,
+              child: Container(
+                height: 4.h,
+                width: 18.w,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white),
+                child: Center(
+                    child: Container(
+                        width: 15.w,
+                        height: 3.h,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.green.shade700),
+                        child: Center(
+                            child: Text(
+                          loc.duration,
+                          style: const TextStyle(color: Colors.white),
+                        )))),
+              )),
+          Positioned(
+              top: 160,
+              left: 20,
+              child: Text(
+                loc.title,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.sp),
+              ))
+        ],
+      ),
+    );
+  }
+
   void _addLocations() {
+    _rLocations.add(LocationsModel(
+        title: "Explore Aspin",
+        reviews: 0,
+        ratings: 0,
+        description: "",
+        price: 0,
+        id: "Aspen, USA",
+        src:
+            "https://www.planetware.com/wpimages/2021/11/colorado-aspen-top-attractions-things-to-do-browse-downtown-aspen.jpg",
+        type: "",
+        duration: "4N/5D"));
+
+    _rLocations.add(LocationsModel(
+        title: "Luxurious Aspen",
+        reviews: 0,
+        ratings: 0,
+        description: "",
+        price: 0,
+        id: "Aspen, USA",
+        src:
+            "https://coveteur.com/media-library/aspen-travel-guide.jpg?id=25424789&width=1245&height=700&quality=90&coordinates=0%2C0%2C0%2C0",
+        type: "",
+        duration: "4N/5D"));
     _locations.add(LocationsModel(
+        duration: "",
         title: "Alley Palace",
         reviews: 355,
         ratings: 4.1,
@@ -300,7 +409,8 @@ class _HomeScreenState extends State<_HomeScreen> {
             "This romantic castle lies directly on Lake Thun in the midst of a beautiful park. Within its main building, is a museum telling the story of the former owners. A tour of the kitchen and servants' quarters reveals how the castle lords and servants lived during the 19th century.",
         price: 30,
         id: "Aspen, USA",
-        src: "https://myswitzerlandvisit.com/wp-content/uploads/2022/05/samuel-ferrara-_wfjeANNuNE-unsplash.jpg",
+        src:
+            "https://myswitzerlandvisit.com/wp-content/uploads/2022/05/samuel-ferrara-_wfjeANNuNE-unsplash.jpg",
         type: "Locations"));
 
     _locations.add(LocationsModel(
@@ -313,9 +423,11 @@ class _HomeScreenState extends State<_HomeScreen> {
         id: "Aspen, USA",
         src:
             "https://s3.amazonaws.com/hines-images/aspen-highlands/Aspen-Highlands-2_hres.jpg",
-        type: "Locations"));
+        type: "Locations",
+        duration: ""));
 
     _locations.add(LocationsModel(
+        duration: "",
         title: "The St. Regis Aspen Resort",
         reviews: 355,
         ratings: 4.1,
@@ -328,6 +440,7 @@ class _HomeScreenState extends State<_HomeScreen> {
         type: "Hotels"));
 
     _locations.add(LocationsModel(
+        duration: "",
         title: "Hotel Jerome, Auberge Resorts Collection",
         reviews: 875,
         ratings: 4.7,
