@@ -4,6 +4,8 @@ import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:aspenproject/models/locations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:aspenproject/aspen-splashscreen.dart';
+import 'package:aspenproject/location-details.dart';
+
 
 void main() {
   runApp(const PagesContainer());
