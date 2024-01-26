@@ -3,16 +3,17 @@ import 'package:sizer/sizer.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:aspenproject/models/locations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:aspenproject/aspen-splashscreen.dart';
 
 void main() {
-  runApp(const HomePage());
+  runApp(const PagesContainer());
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class PagesContainer extends StatefulWidget {
+  const PagesContainer({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<PagesContainer> createState() => _PagesContainerState();
 }
 
 String location = "Aspen, USA";
@@ -25,33 +26,48 @@ List<TabModel> _tabs = [
   TabModel(title: "Profile", view: Container()),
 ];
 
-class _HomePageState extends State<HomePage> {
+class _PagesContainerState extends State<PagesContainer> {
   @override
   Widget build(BuildContext context) {
     return Sizer(builder: (context, orientation, deviceType) {
       return MaterialApp(
           title: "Aspen",
           debugShowCheckedModeBanner: false,
-          home: Scaffold(
-            appBar: AppBar(
-              title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text("Explore", style: TextStyle(fontSize: 15.sp)),
-                    Text("Aspen", style: TextStyle(fontSize: 30.sp))
-                  ]),
-              actions: [_customDropDownButton()],
-              backgroundColor: Colors.white,
-              titleTextStyle: const TextStyle(color: Colors.black),
-              toolbarHeight: 10.h,
-              elevation: 0,
-            ),
-            body: _NavBar(),
-          ));
+          home: splashScreen());
     });
   }
 
+
+}
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: null,
+        title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text("Explore", style: TextStyle(fontSize: 15.sp)),
+              Text("Aspen", style: TextStyle(fontSize: 30.sp))
+            ]),
+        actions: [_customDropDownButton()],
+        backgroundColor: Colors.white,
+        titleTextStyle: const TextStyle(color: Colors.black),
+        toolbarHeight: 10.h,
+        elevation: 0,
+      ),
+      body: _NavBar(),
+    );
+  }
   Widget _customDropDownButton() {
     return Row(children: [
       Icon(
@@ -83,6 +99,7 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 }
+
 
 class TabModel {
   String title;
