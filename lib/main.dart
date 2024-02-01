@@ -35,7 +35,7 @@ class _PagesContainerState extends State<PagesContainer> {
       return MaterialApp(
           title: "Aspen",
           debugShowCheckedModeBanner: false,
-          home: LocationDetails());
+          home: HomePage());
     });
   }
 
@@ -268,7 +268,9 @@ class _HomeScreenState extends State<_HomeScreen> {
   }
 
   Widget _popularLocationCard(LocationsModel loc) {
-    return Card(
+    return InkWell(onTap:(){
+      PersistentNavBarNavigator.pushNewScreen(context, screen: LocationDetails(loc:loc),withNavBar: false);
+    },child:Card(
         elevation: 0,
         color: Colors.grey.shade50,
         child: Stack(children: [
@@ -343,7 +345,7 @@ class _HomeScreenState extends State<_HomeScreen> {
                           });
                         },
                       ))))
-        ]));
+        ])));
   }
 
   Widget _recomendedLocationCard(LocationsModel loc) {

@@ -1,10 +1,14 @@
+import 'package:aspenproject/models/locations.dart';
 import 'package:flutter/material.dart';
 import 'package:readmore/readmore.dart';
 import 'package:sizer/sizer.dart';
+import 'package:aspenproject/models/locations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 class LocationDetails extends StatefulWidget {
-  const LocationDetails({super.key});
+  const LocationDetails({super.key, required this.loc});
+
+  final LocationsModel loc;
 
   @override
   State<LocationDetails> createState() => _LocationDetailsState();
@@ -14,6 +18,7 @@ class _LocationDetailsState extends State<LocationDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: null,
       body: Container(
         height: 100.h,
         width: 100.w,
@@ -28,6 +33,7 @@ class _LocationDetailsState extends State<LocationDetails> {
   }
 
   Widget _locationDescriptionCard() {
+    bool isLiked = widget.loc.isLiked;
     return Card(
       elevation: 0,
       color: Colors.grey.shade50,
@@ -43,8 +49,7 @@ class _LocationDetailsState extends State<LocationDetails> {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: AssetImage('assets/AlleyPalace.png'))),
+                        fit: BoxFit.fill, image: NetworkImage(widget.loc.src))),
               ),
               Positioned(
                   top: 2.h,
@@ -56,7 +61,9 @@ class _LocationDetailsState extends State<LocationDetails> {
                           backgroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15))),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                       child: Icon(
                         Icons.arrow_back_ios_new,
                         color: Colors.grey.shade400,
@@ -71,8 +78,17 @@ class _LocationDetailsState extends State<LocationDetails> {
                           backgroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50))),
-                      onPressed: () {},
-                      child: Image.asset('assets/heartIcon.png')))
+                      onPressed: () {
+                        setState(() {
+                          widget.loc.isLiked = !widget.loc.isLiked;
+                        });
+                      },
+                      child: Image.asset(
+                        'assets/heartIcon.png',
+                        color: widget.loc.isLiked == false
+                            ? Colors.grey.shade400
+                            : Colors.pink.shade200,
+                      )))
             ],
           ),
           SizedBox(
@@ -83,12 +99,15 @@ class _LocationDetailsState extends State<LocationDetails> {
               width: 95.w,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Coeurdes Alpes",
+                children: [Expanded(child:
+                  AutoSizeText(
+                    minFontSize: 10,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    widget.loc.title,
                     style:
                         TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
-                  ),
+                  )),
                   ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           elevation: 0, backgroundColor: Colors.grey.shade50),
@@ -101,25 +120,30 @@ class _LocationDetailsState extends State<LocationDetails> {
                       ))
                 ],
               )),
-          const Row(
-            children: [
-              Icon(
-                Icons.star,
-                color: Colors.yellow,
-              ),
-              Text(" 4.5 "),
-              Text("(355 Reviews)")
-            ],
-          ),
+          SizedBox(
+              width: 87.w,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: Colors.yellow.shade700,
+                    size: 18,
+                  ),
+                  Text(" ${widget.loc.ratings.toString()} "),
+                  Text("(${widget.loc.reviews})")
+                ],
+              )),
           SizedBox(
             height: 1.h,
           ),
           Container(
               height: 12.h,
-              child: SingleChildScrollView(physics: BouncingScrollPhysics(),
+              width: 85.w,
+              child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   child: ReadMoreText(
-                    "This romantic castle lies directly on Lake Thun in the midst of a beautiful park. Within its main building, is a museum telling the story of the former owners. A tour of the kitchen and servants' quarters reveals how the castle lords and servants lived during the 19th century.",
+                    widget.loc.description,
                     textAlign: TextAlign.justify,
                     trimMode: TrimMode.Line,
                     trimCollapsedText: " Read More ",
@@ -136,7 +160,7 @@ class _LocationDetailsState extends State<LocationDetails> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
               )),
           SizedBox(
-            height: 2.h,
+            height: 1.h,
           ),
           Container(
               height: 10.h,
@@ -148,7 +172,58 @@ class _LocationDetailsState extends State<LocationDetails> {
                   _getFacilities("assets/Tub.png", "Tub"),
                   _getFacilities("assets/Pool.png", "Pool"),
                 ],
-              ))
+              )),
+          SizedBox(
+            height: 10.h,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  height: 7.h,
+                  width: 20.w,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Price",
+                        style: TextStyle(
+                            fontSize: 12.sp, fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(child:AutoSizeText(minFontSize: 10.sp,
+                        "  \$${widget.loc.price}",
+                        style: TextStyle(
+                            fontSize: 20.sp,
+                            color: Colors.greenAccent.shade200,
+                            fontWeight: FontWeight.bold),
+                      ))
+                    ],
+                  ),
+                ),
+                SizedBox(
+                    height: 7.h,
+                    width: 60.w,
+                    child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15))),
+                        child: Stack(clipBehavior: Clip.none, children: [
+                          Text(
+                            "Book Now",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Positioned(
+                              left: 20.w,
+                              top: -0.7.h,
+                              child: const Icon(
+                                Icons.arrow_right_outlined,
+                                size: 30,
+                              )),
+                        ])))
+              ],
+            ),
+          )
         ],
       ),
     );
