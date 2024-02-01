@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:readmore/readmore.dart';
 import 'package:sizer/sizer.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
@@ -75,7 +76,7 @@ class _LocationDetailsState extends State<LocationDetails> {
             ],
           ),
           SizedBox(
-            height: 5.h,
+            height: 3.h,
           ),
           Container(
               height: 6.h,
@@ -114,24 +115,64 @@ class _LocationDetailsState extends State<LocationDetails> {
             height: 1.h,
           ),
           Container(
-              height: 10.h,
-              child: AutoSizeText(
-                  minFontSize: 12,
-                  maxFontSize: 20.sp,
-                  "This romantic castle lies directly on Lake Thun in the midst of a beautiful park. Within its main building, is a museum telling the story of the former owners. A tour of the kitchen and servants' quarters reveals how the castle lords and servants lived during the 19th century.")),
-          SizedBox(
-            height: 3.h,
-          ),
+              height: 12.h,
+              child: SingleChildScrollView(physics: BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  child: ReadMoreText(
+                    "This romantic castle lies directly on Lake Thun in the midst of a beautiful park. Within its main building, is a museum telling the story of the former owners. A tour of the kitchen and servants' quarters reveals how the castle lords and servants lived during the 19th century.",
+                    textAlign: TextAlign.justify,
+                    trimMode: TrimMode.Line,
+                    trimCollapsedText: " Read More ",
+                    trimExpandedText: " Read Less ",
+                    lessStyle: TextStyle(color: Colors.blue.shade300),
+                    moreStyle: TextStyle(color: Colors.blue.shade300),
+                    style: TextStyle(fontSize: 12.sp),
+                    trimLines: 4,
+                  ))),
           Container(
               width: 95.w,
               child: Text(
                 "Facilities",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
               )),
-          SizedBox(height: 2.h,),
-          
+          SizedBox(
+            height: 2.h,
+          ),
+          Container(
+              height: 10.h,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _getFacilities("assets/Heater.png", "Heater"),
+                  _getFacilities("assets/Cutlery.png", "Dinner"),
+                  _getFacilities("assets/Tub.png", "Tub"),
+                  _getFacilities("assets/Pool.png", "Pool"),
+                ],
+              ))
         ],
       ),
     );
   }
+}
+
+Widget _getFacilities(String src, String Name) {
+  return Container(
+    decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20), color: Colors.grey.shade100),
+    width: 20.w,
+    height: 9.h,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(src, width: 9.w, color: Colors.grey.shade400),
+        SizedBox(
+          height: 1.h,
+        ),
+        Text(
+          Name,
+          style: TextStyle(color: Colors.grey.shade400, fontSize: 8.sp),
+        )
+      ],
+    ),
+  );
 }

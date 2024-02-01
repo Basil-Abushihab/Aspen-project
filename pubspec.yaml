@@ -33,6 +33,7 @@ dependencies:
   sizer: ^2.0.15
   persistent_bottom_nav_bar: ^5.0.2
   auto_size_text:
+  readmore:
 
 
   # The following adds the Cupertino Icons font to your application.

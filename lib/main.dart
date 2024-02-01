@@ -35,7 +35,7 @@ class _PagesContainerState extends State<PagesContainer> {
       return MaterialApp(
           title: "Aspen",
           debugShowCheckedModeBanner: false,
-          home: splashScreen());
+          home: LocationDetails());
     });
   }
 
