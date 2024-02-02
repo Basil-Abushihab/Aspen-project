@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -6,8 +7,13 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:aspenproject/aspen-splashscreen.dart';
 import 'package:aspenproject/location-details.dart';
 
+import 'firebase_options.dart';
 
-void main() {
+
+void main() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const PagesContainer());
 }
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "332403526951",
+    "project_id": "aspin-project",
+    "storage_bucket": "aspin-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332403526951:android:304db3a43c399fe1eced02",
+        "android_client_info": {
+          "package_name": "com.example.aspenproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXHg1s2CL_N5HrE44J5WnXB-t8p1xDBX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
