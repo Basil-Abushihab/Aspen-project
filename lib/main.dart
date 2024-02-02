@@ -1,5 +1,8 @@
+import 'package:aspenproject/DatabaseManager/DatabaseManager.dart';
+import 'package:aspenproject/Global%20Variables/Variables.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:sizer/sizer.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:aspenproject/models/locations.dart';
@@ -9,11 +12,12 @@ import 'package:aspenproject/location-details.dart';
 
 import 'firebase_options.dart';
 
-
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(const PagesContainer());
 }
 
@@ -38,15 +42,12 @@ class _PagesContainerState extends State<PagesContainer> {
   @override
   Widget build(BuildContext context) {
     return Sizer(builder: (context, orientation, deviceType) {
-      return MaterialApp(
-          title: "Aspen",
-          debugShowCheckedModeBanner: false,
-          home: HomePage());
+      return const MaterialApp(
+          title: "Aspen", debugShowCheckedModeBanner: false, home: HomePage());
     });
   }
-
-
 }
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -76,6 +77,7 @@ class _HomePageState extends State<HomePage> {
       body: _NavBar(),
     );
   }
+
   Widget _customDropDownButton() {
     return Row(children: [
       Icon(
@@ -93,6 +95,8 @@ class _HomePageState extends State<HomePage> {
         onChanged: (String? loc) {
           setState(() {
             location = loc!;
+            GlobalVariables.id=loc;
+            //change global list
           });
         },
         items: const [
@@ -107,7 +111,6 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 }
-
 
 class TabModel {
   String title;
@@ -128,9 +131,10 @@ class _HomeScreenState extends State<_HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final TextInputAction _search = TextInputAction.search;
   final FocusNode _searchFocus = FocusNode();
-  int selected = 0;
+  String selected = "Locations";
   List _locations = [];
   List _rLocations = [];
+  final DatabaseManager _db = DatabaseManager();
 
   @override
   void initState() {
@@ -176,11 +180,11 @@ class _HomeScreenState extends State<_HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _customRadio("Location", 0),
-                    _customRadio("Hotels", 1),
-                    _customRadio("Food", 2),
-                    _customRadio("Adventure", 3),
-                    _customRadio("Sea", 4),
+                    _customRadio("Locations"),
+                    _customRadio("Hotels"),
+                    _customRadio("Food"),
+                    _customRadio("Adventure"),
+                    _customRadio("Sea"),
                   ],
                 ))),
         SizedBox(
@@ -232,14 +236,25 @@ class _HomeScreenState extends State<_HomeScreen> {
   Widget _getListViewBuilder() {
     return Container(
         height: 32.h,
-        child: ListView.builder(
-            physics: BouncingScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            itemCount: _locations.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return _popularLocationCard(_locations[index]);
-            }));
+        child: FutureBuilder(
+            future: _addLocations(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                    child: SpinKitCircle(
+                  color: Colors.blue.shade400,
+                ));
+              }
+              else {
+                return ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _locations.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return _popularLocationCard(_locations[index]);
+                    });
+              }}));
   }
 
   Widget _getListViewBuilderRecommended() {
@@ -255,18 +270,19 @@ class _HomeScreenState extends State<_HomeScreen> {
             }));
   }
 
-  Widget _customRadio(String text, int index) {
+  Widget _customRadio(String text) {
     return ElevatedButton(
       onPressed: () {
         setState(() {
-          selected = index;
+          selected = text;
+          GlobalVariables.type=(text);
         });
       },
       style: ElevatedButton.styleFrom(
           elevation: 0,
           onPrimary:
-              selected == index ? Colors.blue.shade400 : Colors.grey.shade300,
-          primary: selected == index ? Colors.grey.shade200 : Colors.white,
+              selected == text ? Colors.blue.shade400 : Colors.grey.shade300,
+          primary: selected == text ? Colors.grey.shade200 : Colors.white,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
       child: Text(text),
@@ -274,84 +290,88 @@ class _HomeScreenState extends State<_HomeScreen> {
   }
 
   Widget _popularLocationCard(LocationsModel loc) {
-    return InkWell(onTap:(){
-      PersistentNavBarNavigator.pushNewScreen(context, screen: LocationDetails(loc:loc),withNavBar: false);
-    },child:Card(
-        elevation: 0,
-        color: Colors.grey.shade50,
-        child: Stack(children: [
-          Container(
-            height: 32.h,
-            width: 60.w,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                image: DecorationImage(
-                    fit: BoxFit.fill, image: NetworkImage(scale: 12, loc.src))),
-          ),
-          Positioned(
-            top: 170,
-            left: 20,
-            child: Container(
-                height: 4.h,
-                width: 25.w,
+    return InkWell(
+        onTap: () {
+          PersistentNavBarNavigator.pushNewScreen(context,
+              screen: LocationDetails(loc: loc), withNavBar: false);
+        },
+        child: Card(
+            elevation: 0,
+            color: Colors.grey.shade50,
+            child: Stack(children: [
+              Container(
+                height: 32.h,
+                width: 60.w,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    color: Colors.grey.shade600),
-                child: Center(
-                    child: AutoSizeText(
-                  style: TextStyle(color: Colors.white),
-                  loc.title,
-                  maxFontSize: 20.sp,
-                  minFontSize: 10,
-                ))),
-          ),
-          Positioned(
-              top: 204,
-              left: 20,
-              child: Container(
-                height: 4.h,
-                width: 18.w,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    color: Colors.grey.shade600),
-                child: Center(
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                      const Icon(
-                        Icons.star,
-                        color: Colors.yellow,
-                      ),
-                      Text(
-                          style: const TextStyle(color: Colors.white),
-                          loc.ratings.toString())
-                    ])),
-              )),
-          Positioned(
-              top: 190,
-              left: 150,
-              child: Container(
-                  child: SizedBox(
-                      height: 5.h,
-                      width: 14.w,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50))),
-                        child: Image.asset(
-                            color: loc.isLiked == false
-                                ? Colors.grey.shade400
-                                : Colors.pink.shade200,
-                            'assets/heartIcon.png'),
-                        onPressed: () {
-                          setState(() {
-                            loc.isLiked = !loc.isLiked;
-                          });
-                        },
-                      ))))
-        ])));
+                    borderRadius: BorderRadius.circular(30),
+                    image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: NetworkImage(scale: 12, loc.src))),
+              ),
+              Positioned(
+                top: 170,
+                left: 20,
+                child: Container(
+                    height: 4.h,
+                    width: 25.w,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        color: Colors.grey.shade600),
+                    child: Center(
+                        child: AutoSizeText(
+                      style: TextStyle(color: Colors.white),
+                      loc.title,
+                      maxFontSize: 20.sp,
+                      minFontSize: 10,
+                    ))),
+              ),
+              Positioned(
+                  top: 204,
+                  left: 20,
+                  child: Container(
+                    height: 4.h,
+                    width: 18.w,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        color: Colors.grey.shade600),
+                    child: Center(
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                          const Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                          ),
+                          Text(
+                              style: const TextStyle(color: Colors.white),
+                              loc.ratings.toString())
+                        ])),
+                  )),
+              Positioned(
+                  top: 190,
+                  left: 150,
+                  child: Container(
+                      child: SizedBox(
+                          height: 5.h,
+                          width: 14.w,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50))),
+                            child: Image.asset(
+                                color: loc.isLiked == false
+                                    ? Colors.grey.shade400
+                                    : Colors.pink.shade200,
+                                'assets/heartIcon.png'),
+                            onPressed: () {
+                              setState(() {
+                                loc.isLiked = !loc.isLiked;
+                              });
+                            },
+                          ))))
+            ])));
   }
 
   Widget _recomendedLocationCard(LocationsModel loc) {
@@ -403,7 +423,7 @@ class _HomeScreenState extends State<_HomeScreen> {
     );
   }
 
-  void _addLocations() {
+  Future<void> _addLocations() async {
     _rLocations.add(LocationsModel(
         title: "Explore Aspin",
         reviews: 0,
@@ -414,7 +434,8 @@ class _HomeScreenState extends State<_HomeScreen> {
         src:
             "https://www.planetware.com/wpimages/2021/11/colorado-aspen-top-attractions-things-to-do-browse-downtown-aspen.jpg",
         type: "",
-        duration: "4N/5D"));
+        duration: "4N/5D",
+        isLiked: false));
 
     _rLocations.add(LocationsModel(
         title: "Luxurious Aspen",
@@ -426,58 +447,13 @@ class _HomeScreenState extends State<_HomeScreen> {
         src:
             "https://coveteur.com/media-library/aspen-travel-guide.jpg?id=25424789&width=1245&height=700&quality=90&coordinates=0%2C0%2C0%2C0",
         type: "",
-        duration: "4N/5D"));
-    _locations.add(LocationsModel(
-        duration: "",
-        title: "Alley Palace",
-        reviews: 355,
-        ratings: 4.1,
-        description:
-            "This romantic castle lies directly on Lake Thun in the midst of a beautiful park. Within its main building, is a museum telling the story of the former owners. A tour of the kitchen and servants' quarters reveals how the castle lords and servants lived during the 19th century.",
-        price: 30,
-        id: "Aspen, USA",
-        src:
-            "https://myswitzerlandvisit.com/wp-content/uploads/2022/05/samuel-ferrara-_wfjeANNuNE-unsplash.jpg",
-        type: "Locations"));
+        duration: "4N/5D",
+        isLiked: false));
 
-    _locations.add(LocationsModel(
-        title: "Aspen Highlands Ski Resort",
-        reviews: 250,
-        ratings: 4.5,
-        description:
-            "Aspen Highlands is the second largest mountain of the four mountains at Aspen Snowmass, including Buttermilk, Snowmass, and Aspen Mountain. It is known for its expert terrain, including the challenging Highland Bowl, and offers some of the most intense in-bounds skiing in the United States. It also has the best view of the Maroon Bells.",
-        price: 199,
-        id: "Aspen, USA",
-        src:
-            "https://s3.amazonaws.com/hines-images/aspen-highlands/Aspen-Highlands-2_hres.jpg",
-        type: "Locations",
-        duration: ""));
-
-    _locations.add(LocationsModel(
-        duration: "",
-        title: "The St. Regis Aspen Resort",
-        reviews: 355,
-        ratings: 4.1,
-        description:
-            "This upscale resort hotel is set in a grand redbrick building that's a 3-minute walk from the gondolas of Aspen Mountain and 2 miles from Aspen Golf & Tennis Club.",
-        price: 999,
-        id: "Aspen, USA",
-        src:
-            "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/29/14/76/85/the-beautiful-st-regis.jpg?w=700&h=-1&s=1",
-        type: "Hotels"));
-
-    _locations.add(LocationsModel(
-        duration: "",
-        title: "Hotel Jerome, Auberge Resorts Collection",
-        reviews: 875,
-        ratings: 4.7,
-        description:
-            "At the foot of Aspen Mountain and a 7-minute walk from Downtown, this refined, stately hotel in a circa 1889 redbrick property is 3 miles from Buttermilk ski resort.",
-        price: 1099,
-        id: "Aspen, USA",
-        src:
-            "https://lh3.googleusercontent.com/p/AF1QipOxiJ2L7FmmPaRddTrgcJoHXN6Eb-KeRO9kf6aD=s680-w680-h510",
-        type: "Hotels"));
+    _locations = await _db.getLocations(
+      GlobalVariables.type,
+      GlobalVariables.id,
+    );
   }
 }
 

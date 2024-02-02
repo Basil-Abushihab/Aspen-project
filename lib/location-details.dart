@@ -2,7 +2,6 @@ import 'package:aspenproject/models/locations.dart';
 import 'package:flutter/material.dart';
 import 'package:readmore/readmore.dart';
 import 'package:sizer/sizer.dart';
-import 'package:aspenproject/models/locations.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 class LocationDetails extends StatefulWidget {
