@@ -43,7 +43,7 @@ class _PagesContainerState extends State<PagesContainer> {
   Widget build(BuildContext context) {
     return Sizer(builder: (context, orientation, deviceType) {
       return const MaterialApp(
-          title: "Aspen", debugShowCheckedModeBanner: false, home: HomePage());
+          title: "Aspen", debugShowCheckedModeBanner: false, home: splashScreen());
     });
   }
 }
